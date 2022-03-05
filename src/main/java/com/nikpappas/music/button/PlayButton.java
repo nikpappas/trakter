@@ -1,6 +1,5 @@
 package com.nikpappas.music.button;
 
-import com.nikpappas.music.MusicPlayer;
 import com.nikpappas.music.shapes.ResponsiveShapes;
 import processing.event.MouseEvent;
 

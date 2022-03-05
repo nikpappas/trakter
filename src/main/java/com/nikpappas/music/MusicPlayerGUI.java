@@ -2,6 +2,7 @@ package com.nikpappas.music;
 
 import com.nikpappas.music.button.Button;
 import com.nikpappas.music.button.*;
+import com.nikpappas.music.player.MusicPlayerSound;
 import com.nikpappas.music.shapes.ResponsiveShapes;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
@@ -19,11 +20,15 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static com.nikpappas.music.Player.PLAYER_A;
+import static com.nikpappas.music.Player.PLAYER_B;
+
 
 public class MusicPlayerGUI extends PApplet {
     public static final Color RED = new Color(200, 60, 50);
-    MusicPlayer playerA;
-    MusicPlayer playerB;
+    MusicPlayerSound playerA;
+    MusicPlayerSound playerB;
+    EnumMap<Player, MusicPlayerSound> players = new EnumMap<>(Player.class);
 
     public static final Set<String> VALID_EXTENTIONS = Set.of("mp3", "wav");
     private Volume volumeB;
@@ -44,16 +49,19 @@ public class MusicPlayerGUI extends PApplet {
 
     @Override
     public void settings() {
-        size(400, 400);
+        size(500, 400);
     }
 
     @Override
     public void setup() {
-        playerA = new MusicPlayer(this);
-        playerB = new MusicPlayer(this);
+//        surface.setResizable(true);
+        playerA = new MusicPlayerSound(this);
+        playerB = new MusicPlayerSound(this);
+        players.put(PLAYER_A, playerA);
+        players.put(PLAYER_B, playerB);
         volumeA = new Volume(this, playerA, width / 2 - 30, height / 3 - 30);
         volumeB = new Volume(this, playerB, width - 30, height / 3 - 30);
-        playlistComponent = new Playlist(this, 0, height / 3, loadTrackToPlayer(playerA, this::getNextTrack, t -> t.setPlayingA(true)));
+        playlistComponent = new Playlist(this, 0, height / 3);
 
         ResponsiveShapes shapes = new ResponsiveShapes(this);
         buttons.add(new PrevButton(this, 10, 10, 30, shapes, loadTrackToPlayer(playerA, this::getPrevTrack, t -> t.setPlayingA(true))));
@@ -91,6 +99,12 @@ public class MusicPlayerGUI extends PApplet {
         rect(0, 0, width / 2, height / 3);
         rect(width / 2, 0, width / 2, height / 3);
         fill(100);
+        if (playerA.getPlaying() != null) {
+            text(playerA.getPlaying().getDisplayName(), 30, 60);
+        }
+        if (playerB.getPlaying() != null) {
+            text(playerB.getPlaying().getDisplayName(), 230, 60);
+        }
         text(index, width - 30, 10);
         stroke(50);
         line(width / 2, 0, width / 2, height / 3);
@@ -98,48 +112,38 @@ public class MusicPlayerGUI extends PApplet {
         if (playerA.isPlaying() && playerA.isInLast(30)) {
             if (!playerB.isPlaying()) {
                 var trackToLoad = getNextTrack();
-                if (trackToLoad.isPresent()) {
-                    trackToLoad.get().setPlayingB(true);
-                    playerB.loadFile(trackToLoad.get().getFile());
-                    playerB.play();
-                }
+                trackToLoad.ifPresent(entry -> loadTrack(PLAYER_B, entry));
             }
-
             volumeB.setVolume(1 - playerA.crossfadePercent());
             volumeA.setVolume(playerA.crossfadePercent());
         }
         if (playerB.isPlaying() && playerB.isInLast(30)) {
             if (!playerA.isPlaying()) {
                 var trackToLoad = getNextTrack();
-                if (trackToLoad.isPresent()) {
-
-                    trackToLoad.get().setPlayingA(true);
-                    playerA.loadFile(trackToLoad.get().getFile());
-                    playerA.play();
-                }
+                trackToLoad.ifPresent(entry -> loadTrack(PLAYER_A, entry));
             }
             volumeA.setVolume(1 - playerB.crossfadePercent());
             volumeB.setVolume(playerB.crossfadePercent());
         }
     }
 
-    private Runnable loadTrackToPlayer(MusicPlayer player, Supplier<Optional<PlaylistEntry>> supplier, Consumer<PlaylistEntry> consumer) {
+    private Runnable loadTrackToPlayer(MusicPlayerSound player, Supplier<Optional<PlaylistEntry>> supplier, Consumer<PlaylistEntry> consumer) {
 
         var track = supplier.get();
         if (track.isEmpty()) {
             return () -> {
             };
         }
-        playlist.stream().filter(x -> x.getFile().equals(player.getFile())).forEach(x -> {
+        playlist.stream().filter(x -> x.getFile().equals(player.getPlaying().getFile())).forEach(x -> {
             x.setPlayingA(false);
             x.setPlayingB(false);
 
         });
         consumer.accept(track.get());
-        return dispatchAsync(() -> player.loadFile(track.get().getFile()));
+        return dispatchAsync(() -> player.loadFile(track.get()));
     }
 
-    private Runnable dispatchAsync(Runnable run) {
+    public Runnable dispatchAsync(Runnable run) {
         return () -> {
             var thread = new Thread(run);
             thread.start();
@@ -162,11 +166,23 @@ public class MusicPlayerGUI extends PApplet {
 
 
     @Override
-    public void mouseReleased() {
-
+    public void mouseReleased(MouseEvent me) {
+        playlistComponent.mouseReleased(me);
     }
     @Override
-    public void mouseWheel(MouseEvent me){
+    public void mousePressed(MouseEvent me) {
+        playlistComponent.mousePressed(me);
+    }
+
+
+
+    @Override
+    public void mouseDragged(MouseEvent me) {
+        playlistComponent.listenDragged(me);
+    }
+
+    @Override
+    public void mouseWheel(MouseEvent me) {
         playlistComponent.scroll(me.getCount());
     }
 
@@ -198,9 +214,21 @@ public class MusicPlayerGUI extends PApplet {
         return playlist;
     }
 
-    public void loadTrack(String s) {
-        playerA.loadFile(s);
-        playerA.play();
+    public void loadTrack(PlaylistEntry entry) {
+        loadTrack(PLAYER_A, entry);
+    }
+
+    public void loadTrack(Player playerEnum, PlaylistEntry entry) {
+        var player = players.get(playerEnum);
+        if(playerEnum.equals(PLAYER_A)){
+            entry.setPlayingA(true);
+            playlist.stream().filter(x -> !x.equals(entry)).forEach(x -> x.setPlayingA(false));
+        }else {
+            playlist.stream().filter(x -> !x.equals(entry)).forEach(x -> x.setPlayingB(false));
+            entry.setPlayingB(true);
+        }
+        player.loadFile(entry);
+        player.play();
     }
 }
 

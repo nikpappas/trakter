@@ -1,6 +1,7 @@
-package com.nikpappas.music;
+package com.nikpappas.music.button;
 
-import com.nikpappas.music.button.Button;
+import com.nikpappas.music.player.MusicPlayerSound;
+import com.nikpappas.music.MusicPlayerGUI;
 import processing.event.MouseEvent;
 
 import java.awt.*;
@@ -11,12 +12,12 @@ import static com.nikpappas.music.MusicPlayerGUI.RED;
 public class Volume implements Button {
     private final Rectangle limits;
     private MusicPlayerGUI musicPlayerGUI;
-    private final MusicPlayer player;
+    private final MusicPlayerSound player;
     private final int x;
     private int height;
     private float val;
 
-    public Volume(MusicPlayerGUI musicPlayerGUI, MusicPlayer player, int x, int height) {
+    public Volume(MusicPlayerGUI musicPlayerGUI, MusicPlayerSound player, int x, int height) {
         this.musicPlayerGUI = musicPlayerGUI;
         this.player = player;
         this.x = x;
