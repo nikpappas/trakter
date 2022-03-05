@@ -2,17 +2,20 @@ package com.nikpappas.music.player;
 
 import com.nikpappas.music.PlaylistEntry;
 import processing.core.PApplet;
+import processing.sound.Amplitude;
 import processing.sound.SoundFile;
 
 public class MusicPlayerSound implements MusicPlayer {
+    private final Amplitude amp;
     SoundFile soundA;
 
 
     PApplet pApplet;
     private PlaylistEntry playing;
 
-    MusicPlayerSound(PApplet pApplet) {
+    public MusicPlayerSound(PApplet pApplet) {
         this.pApplet = pApplet;
+        this.amp = new Amplitude(pApplet);
     }
 
     @Override
@@ -27,6 +30,7 @@ public class MusicPlayerSound implements MusicPlayer {
                 soundA.stop();
             }
             soundA = new SoundFile(pApplet, toLoad.getFile(), false);
+            amp.input(soundA);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
@@ -120,4 +124,10 @@ public class MusicPlayerSound implements MusicPlayer {
     public PlaylistEntry getPlaying() {
         return playing;
     }
+
+    @Override
+    public float level() {
+        return amp.analyze();
+    }
+
 }

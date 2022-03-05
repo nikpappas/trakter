@@ -1,6 +1,7 @@
 package com.nikpappas.music.player;
 
 import com.nikpappas.music.PlaylistEntry;
+import processing.sound.SoundObject;
 
 public interface MusicPlayer {
 
@@ -27,4 +28,6 @@ public interface MusicPlayer {
     float crossfadePercent();
 
     PlaylistEntry getPlaying();
+
+    float level();
 }

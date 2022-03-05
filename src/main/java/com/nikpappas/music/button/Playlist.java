@@ -9,7 +9,6 @@ import java.awt.*;
 import static com.nikpappas.music.MusicPlayerGUI.RED;
 import static com.nikpappas.music.Player.PLAYER_A;
 import static com.nikpappas.music.Player.PLAYER_B;
-import static processing.core.PApplet.day;
 
 
 public class Playlist implements Button {
@@ -35,7 +34,6 @@ public class Playlist implements Button {
 
     @Override
     public void listenClick(MouseEvent me) {
-        System.out.println("CLICKED");
         draggedSong = null;
         candidateDraggedSong = null;
         var mouseY = me.getY();

@@ -13,14 +13,13 @@ repositories {
 dependencies {
     implementation(
             files('/Users/nikos/libs/org/processing/processing-core/v4/core.jar'),
-            files('/Users/nikos/libs/org/processing/processing-sound/sound.jar'),
+            files('/Users/nikos/libs/org/processing/processing-sound/soundv3.jar'),
             files('/Users/nikos/libs/org/processing/processing-sound/jsyn-20171016.jar'),
             files('/Users/nikos/libs/org/processing/processing-sound/javamp3-1.0.4.jar'),
             files('/Users/nikos/libs/com/jogl/jogl-all-natives-macosx-universal.jar'),
             files('/Users/nikos/libs/com/jogl/jogl-all.jar'),
             files('/Users/nikos/libs/com/jogl/gluegen-rt-natives-macosx-universal.jar'),
             files('/Users/nikos/libs/com/jogl/gluegen-rt.jar'),
-//            'fr.delthas:javamp3:1.0.1',
             'com.nikpappas.utils:utils:1.0.1',
     )
 
