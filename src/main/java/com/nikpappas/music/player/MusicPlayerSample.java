@@ -4,17 +4,22 @@ import com.nikpappas.music.MusicPlayerGUI;
 import com.nikpappas.music.PlaylistEntry;
 import processing.sound.Amplitude;
 import processing.sound.AudioSample;
+import processing.sound.BeatDetector;
 import processing.sound.SoundFile;
 
 public class MusicPlayerSample implements MusicPlayer {
     private PlaylistEntry playing;
     private final MusicPlayerGUI pApplet;
+
     AudioSample soundA;
-    Amplitude amp;
+    private final Amplitude amp;
+    private final BeatDetector beat;
+    private float playRate;
 
     public MusicPlayerSample(MusicPlayerGUI pApplet) {
         this.pApplet = pApplet;
         amp = new Amplitude(pApplet);
+        beat = new BeatDetector(pApplet);
     }
 
     @Override
@@ -35,6 +40,7 @@ public class MusicPlayerSample implements MusicPlayer {
             soundB.read(samples);
             soundA.write(samples);
             amp.input(soundA);
+            beat.input(soundA);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
@@ -86,6 +92,15 @@ public class MusicPlayerSample implements MusicPlayer {
     }
 
     @Override
+    public void setPlayRate(float rate){
+        if(playRate == rate){
+            return;
+        }
+        playRate = rate;
+        soundA.rate(rate);
+    }
+
+    @Override
     public void setPosition(float percent) {
         try {
             var posFrame = (int) (percent * soundA.frames());
@@ -121,6 +136,11 @@ public class MusicPlayerSample implements MusicPlayer {
     @Override
     public float level() {
         return amp.analyze();
+    }
+
+    @Override
+    public boolean isBeat() {
+        return beat.isBeat();
     }
 
 }

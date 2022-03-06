@@ -9,15 +9,10 @@ import com.nikpappas.music.shapes.ResponsiveShapes;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-import processing.sound.BeatDetector;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.*;
-import java.io.File;
-import java.io.IOException;
+import java.awt.dnd.DropTarget;
 import java.util.List;
 import java.util.*;
 import java.util.function.Consumer;
@@ -28,14 +23,19 @@ import static com.nikpappas.music.Player.PLAYER_B;
 
 
 public class MusicPlayerGUI extends PApplet {
+
+    public static final Color DARK_GREY = new Color(100, 100, 100);
+    public static final Color DARKER_GREY = new Color(59, 63, 65);
+    public static final Color LIGHT_GREY = new Color(200, 200, 200);
     public static final Color RED = new Color(200, 60, 50);
+    public static final Color BLUE = new Color(100, 60, 150);
     public static final Color GREEN = new Color(60, 180, 76);
-    BeatDetector beatDetector;
     MusicPlayer playerA;
     MusicPlayerSound playerB;
     EnumMap<Player, MusicPlayer> players = new EnumMap<>(Player.class);
 
     public static final Set<String> VALID_EXTENTIONS = Set.of("mp3", "wav");
+    public static final int X_FADE_TIME = 30;
     private Volume volumeB;
     private Volume volumeA;
 
@@ -60,7 +60,6 @@ public class MusicPlayerGUI extends PApplet {
     @Override
     public void setup() {
 //        surface.setResizable(true);
-        beatDetector = new BeatDetector(this);
 
         playerA = new MusicPlayerSample(this);
         playerB = new MusicPlayerSound(this);
@@ -73,39 +72,42 @@ public class MusicPlayerGUI extends PApplet {
         ResponsiveShapes shapes = new ResponsiveShapes(this);
         buttons.add(new PrevButton(this, 10, 10, 30, shapes, loadTrackToPlayer(playerA, this::getPrevTrack, t -> t.setPlayingA(true))));
         buttons.add(new PlayButton(50, 10, 30, shapes, () -> playerA.playPause()));
-        buttons.add(new StopButton(90, 10, 30, shapes, () -> playerA.stop()));
+        // stop
+        buttons.add(new SquareButton(90, 10, 30, shapes, () -> playerA.stop()));
         buttons.add(new NextButton(130, 10, 30, shapes, loadTrackToPlayer(playerA, this::getNextTrack, t -> t.setPlayingA(true))));
         buttons.add(playlistComponent);
         buttons.add(volumeA);
         buttons.add(new Tracker(this, playerA, 0, height / 3 - 30));
+        HSlider rateA = new HSlider(this, 10, height / 3 - 60, width / 3, 20, .7f, 1.3f, 1, rate -> playerA.setPlayRate(rate));
+        rateA.setBgColour(DARK_GREY);
+        rateA.setFgColour(BLUE);
+        buttons.add(rateA);
 
         buttons.add(new PrevButton(this, width / 2 + 10, 10, 30, shapes, loadTrackToPlayer(playerB, this::getPrevTrack, t -> t.setPlayingB(true))));
         buttons.add(new PlayButton(width / 2 + 50, 10, 30, shapes, () -> playerB.playPause()));
-        buttons.add(new StopButton(width / 2 + 90, 10, 30, shapes, () -> playerB.stop()));
+        // stop
+        buttons.add(new SquareButton(width / 2 + 90, 10, 30, shapes, () -> playerB.stop()));
         buttons.add(new NextButton(width / 2 + 130, 10, 30, shapes, loadTrackToPlayer(playerB, this::getNextTrack, t -> t.setPlayingB(true))));
         buttons.add(volumeB);
         buttons.add(new Tracker(this, playerB, width / 2, height / 3 - 30));
+        HSlider rateB = new HSlider(this, width / 2 + 10, height / 3 - 60, width / 3, 20, .7f, 1.3f, 1, rate -> playerB.setPlayRate(rate));
+        rateB.setBgColour(DARK_GREY);
+        rateB.setFgColour(BLUE);
+        buttons.add(rateB);
 
         background(43);
-        JFrame frame;
-        frame = (JFrame) ((processing.awt.PSurfaceAWT.SmoothCanvas) surface.getNative()).getFrame();
-        frame.setDropTarget(dt);
-        try {
-            dt.addDropTargetListener(new Listen(fileHandler));
-        } catch (TooManyListenersException e) {
-            e.printStackTrace();
-        }
+        setUpDragAndDropListener();
     }
 
 
     @Override
     public void draw() {
         background(43);
-        fill(59, 63, 65);
+        fill(DARKER_GREY.getRGB());
         noStroke();
         rect(0, 0, width / 2f, height / 3f);
         rect(width / 2f, 0, width / 2f, height / 3f);
-        fill(100);
+        fill(DARK_GREY.getRGB());
         if (playerA.getPlaying() != null) {
             text(playerA.getPlaying().getDisplayName(), 10, 60);
         }
@@ -119,7 +121,7 @@ public class MusicPlayerGUI extends PApplet {
             stroke(50);
             x.draw();
         });
-        if (playerA.isPlaying() && playerA.isInLast(30)) {
+        if (playerA.isPlaying() && playerA.isInLast(X_FADE_TIME)) {
             if (!playerB.isPlaying()) {
                 var trackToLoad = getNextTrack();
                 trackToLoad.ifPresent(entry -> loadTrack(PLAYER_B, entry));
@@ -127,7 +129,7 @@ public class MusicPlayerGUI extends PApplet {
             volumeB.setVolume(1 - playerA.crossfadePercent());
             volumeA.setVolume(playerA.crossfadePercent());
         }
-        if (playerB.isPlaying() && playerB.isInLast(30)) {
+        if (playerB.isPlaying() && playerB.isInLast(X_FADE_TIME)) {
             if (!playerA.isPlaying()) {
                 var trackToLoad = getNextTrack();
                 trackToLoad.ifPresent(entry -> loadTrack(PLAYER_A, entry));
@@ -135,11 +137,14 @@ public class MusicPlayerGUI extends PApplet {
             volumeA.setVolume(1 - playerB.crossfadePercent());
             volumeB.setVolume(playerB.crossfadePercent());
         }
-        if (beatDetector.isBeat()) {
+        if (playerA.isBeat()) {
             fill(GREEN.getRGB());
-            circle(width / 2, 100, 20);
+            circle(60, 100, 20);
         }
-
+        if (playerB.isBeat()) {
+            fill(GREEN.getRGB());
+            circle(width / 2 + 60, 100, 20);
+        }
     }
 
     private Runnable loadTrackToPlayer(MusicPlayer player, Supplier<Optional<PlaylistEntry>> supplier, Consumer<PlaylistEntry> consumer) {
@@ -245,47 +250,16 @@ public class MusicPlayerGUI extends PApplet {
         player.loadFile(entry);
         player.play();
     }
-}
 
-class Listen implements DropTargetListener {
-    FileHandler fileHandler;
-
-    public Listen(FileHandler fileHandler) {
-        this.fileHandler = fileHandler;
-    }
-
-    @Override
-    public void dragEnter(DropTargetDragEvent dtde) {
-        System.out.println("Enter");
-    }
-
-    @Override
-    public void dragOver(DropTargetDragEvent dtde) {
-        System.out.println("Over");
-    }
-
-    @Override
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-        System.out.println("Changed");
-
-    }
-
-    @Override
-    public void dragExit(DropTargetEvent dte) {
-        System.out.println("Exit");
-
-    }
-
-    @Override
-    public void drop(DropTargetDropEvent dtde) {
+    private void setUpDragAndDropListener() {
+        JFrame frame;
+        frame = (JFrame) ((processing.awt.PSurfaceAWT.SmoothCanvas) surface.getNative()).getFrame();
+        frame.setDropTarget(dt);
         try {
-            dtde.acceptDrop(DnDConstants.ACTION_REFERENCE);
-            var filePath = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-            System.out.println(filePath);
-            fileHandler.loadFiles(filePath);
-        } catch (UnsupportedFlavorException | IOException e) {
+            dt.addDropTargetListener(new DragAndDropListener(fileHandler));
+        } catch (TooManyListenersException e) {
             e.printStackTrace();
         }
-
     }
 }
+

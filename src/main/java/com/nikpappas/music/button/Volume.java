@@ -6,8 +6,7 @@ import processing.event.MouseEvent;
 
 import java.awt.*;
 
-import static com.nikpappas.music.MusicPlayerGUI.GREEN;
-import static com.nikpappas.music.MusicPlayerGUI.RED;
+import static com.nikpappas.music.MusicPlayerGUI.*;
 
 
 public class Volume implements Button {
@@ -36,11 +35,11 @@ public class Volume implements Button {
 
     @Override
     public void draw() {
-        musicPlayerGUI.fill(100);
+        musicPlayerGUI.fill(DARK_GREY.getRGB());
         musicPlayerGUI.rect(x, 15, 15, height);
         musicPlayerGUI.fill(RED.getRGB());
         musicPlayerGUI.rect(x, 15 + height * (1 - val), 15, height * val);
-        musicPlayerGUI.fill(100);
+        musicPlayerGUI.fill(DARK_GREY.getRGB());
         musicPlayerGUI.rect(x + 15, 15, 15, height);
         musicPlayerGUI.fill(GREEN.getRGB());
 

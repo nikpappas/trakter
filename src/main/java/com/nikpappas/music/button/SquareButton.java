@@ -5,7 +5,7 @@ import processing.event.MouseEvent;
 
 import java.awt.*;
 
-public class StopButton implements Button {
+public class SquareButton implements Button {
     private final float x;
     private final float y;
     private final float width;
@@ -13,7 +13,7 @@ public class StopButton implements Button {
     private ResponsiveShapes shapes;
     private final Rectangle limits;
 
-    public StopButton(float x, float y, float width, ResponsiveShapes shapes, Runnable behaviour) {
+    public SquareButton(float x, float y, float width, ResponsiveShapes shapes, Runnable behaviour) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -26,7 +26,6 @@ public class StopButton implements Button {
     @Override
     public void listenClick(MouseEvent me) {
         if (limits.contains(me.getX(), me.getY())) {
-            System.out.println("stop");
             behaviour.run();
         }
 

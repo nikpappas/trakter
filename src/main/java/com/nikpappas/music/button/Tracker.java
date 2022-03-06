@@ -6,6 +6,8 @@ import processing.event.MouseEvent;
 
 import java.awt.*;
 
+import static com.nikpappas.music.MusicPlayerGUI.*;
+
 public class Tracker implements Button {
 
     private final MusicPlayerGUI pApplet;
@@ -35,11 +37,11 @@ public class Tracker implements Button {
     @Override
     public void draw() {
         var pos = player.getPosition();
-        pApplet.fill(200);
-        pApplet.stroke(100);
+        pApplet.fill(LIGHT_GREY.getRGB());
+        pApplet.stroke(DARK_GREY.getRGB());
         pApplet.rect(limits.x, limits.y, limits.width, limits.height);
         pApplet.noStroke();
-        pApplet.fill(200, 60, 50);
+        pApplet.fill(RED.getRGB());
         pApplet.rect(limits.x, limits.y + limits.height / 4, limits.width * pos / 100, limits.height / 2);
     }
 }

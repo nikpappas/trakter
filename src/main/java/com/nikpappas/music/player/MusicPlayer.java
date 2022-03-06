@@ -19,6 +19,8 @@ public interface MusicPlayer {
 
     float getPosition();
 
+    void setPlayRate(float rate);
+
     void setPosition(float percent);
 
     void setVolume(float vol);
@@ -30,4 +32,6 @@ public interface MusicPlayer {
     PlaylistEntry getPlaying();
 
     float level();
+
+    boolean isBeat();
 }

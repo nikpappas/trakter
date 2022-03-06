@@ -6,6 +6,8 @@ import processing.event.MouseEvent;
 
 import java.awt.*;
 
+import static com.nikpappas.music.MusicPlayerGUI.DARK_GREY;
+
 public class PrevButton implements Button {
 
     private MusicPlayerGUI musicPlayerGUI;
@@ -38,7 +40,7 @@ public class PrevButton implements Button {
 
     @Override
     public void draw() {
-        musicPlayerGUI.fill(100);
+        musicPlayerGUI.fill(DARK_GREY.getRGB());
         shapes.responsiveTriangleLeft(x, y, width / 2, width);
         shapes.responsiveTriangleLeft(x + width / 2, y, width / 2, width);
     }

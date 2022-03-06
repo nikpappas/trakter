@@ -3,19 +3,26 @@ package com.nikpappas.music.player;
 import com.nikpappas.music.PlaylistEntry;
 import processing.core.PApplet;
 import processing.sound.Amplitude;
+import processing.sound.BeatDetector;
 import processing.sound.SoundFile;
+
+import static com.nikpappas.music.MusicPlayerGUI.X_FADE_TIME;
 
 public class MusicPlayerSound implements MusicPlayer {
     private final Amplitude amp;
+    private final BeatDetector beat;
     SoundFile soundA;
 
 
     PApplet pApplet;
     private PlaylistEntry playing;
+    private float playRate;
 
     public MusicPlayerSound(PApplet pApplet) {
         this.pApplet = pApplet;
         this.amp = new Amplitude(pApplet);
+        this.beat = new BeatDetector(pApplet);
+        beat.sensitivity(30);
     }
 
     @Override
@@ -31,6 +38,7 @@ public class MusicPlayerSound implements MusicPlayer {
             }
             soundA = new SoundFile(pApplet, toLoad.getFile(), false);
             amp.input(soundA);
+            beat.input(soundA);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
@@ -89,6 +97,14 @@ public class MusicPlayerSound implements MusicPlayer {
     }
 
     @Override
+    public void setPlayRate(float rate){
+        if(playRate == rate){
+            return;
+        }
+        playRate = rate;
+        soundA.rate(rate);
+    }
+    @Override
     public void setPosition(float percent) {
         try {
             var posFrame = (int) (percent * soundA.frames());
@@ -117,7 +133,7 @@ public class MusicPlayerSound implements MusicPlayer {
 
     @Override
     public float crossfadePercent() {
-        return (soundA.duration() - soundA.position()) / 30;
+        return (soundA.duration() - soundA.position()) / X_FADE_TIME;
     }
 
     @Override
@@ -128,6 +144,11 @@ public class MusicPlayerSound implements MusicPlayer {
     @Override
     public float level() {
         return amp.analyze();
+    }
+
+    @Override
+    public boolean isBeat() {
+        return beat.isBeat();
     }
 
 }

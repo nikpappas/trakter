@@ -6,7 +6,7 @@ import processing.event.MouseEvent;
 
 import java.awt.*;
 
-import static com.nikpappas.music.MusicPlayerGUI.RED;
+import static com.nikpappas.music.MusicPlayerGUI.*;
 import static com.nikpappas.music.Player.PLAYER_A;
 import static com.nikpappas.music.Player.PLAYER_B;
 
@@ -69,7 +69,7 @@ public class Playlist implements Button {
                 continue;
             }
             if (file.isSelected()) {
-                musicPlayerGUI.fill(200);
+                musicPlayerGUI.fill(LIGHT_GREY.getRGB());
                 musicPlayerGUI.rect(x, curOffset + offset - TRACK_HEIGHT / 2, musicPlayerGUI.width, TRACK_HEIGHT);
             }
             var toDisplay = "";
@@ -81,7 +81,7 @@ public class Playlist implements Button {
                 toDisplay += "B   ";
             }
             toDisplay += file.getDisplayName();
-            musicPlayerGUI.fill(100);
+            musicPlayerGUI.fill(DARK_GREY.getRGB());
             musicPlayerGUI.text(toDisplay, x + 10, curOffset + offset);
             if (file.isError()) {
                 musicPlayerGUI.fill(RED.getRGB());
@@ -151,6 +151,10 @@ public class Playlist implements Button {
 
     private PlaylistEntry getTrackFromMouse(int y) {
         var selectedIndex = getPlaylistIndexFromMouse(y);
+        var playlist = musicPlayerGUI.getPlaylist();
+        if(selectedIndex>=playlist.size()){
+            return null;
+        }
         return musicPlayerGUI.getPlaylist().get(selectedIndex);
     }
 }
