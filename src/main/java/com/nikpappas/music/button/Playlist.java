@@ -32,7 +32,6 @@ public class Playlist implements Button {
 
     }
 
-    @Override
     public void listenClick(MouseEvent me) {
         draggedSong = null;
         candidateDraggedSong = null;
@@ -124,7 +123,8 @@ public class Playlist implements Button {
 
     }
 
-    public void mouseReleased(MouseEvent me) {
+    @Override
+    public void listenMouseRelease(MouseEvent me) {
         if (draggedSong != null) {
             if (limits.contains(me.getX(), me.getY())) {
                 var playlist = musicPlayerGUI.getPlaylist();
@@ -152,7 +152,7 @@ public class Playlist implements Button {
     private PlaylistEntry getTrackFromMouse(int y) {
         var selectedIndex = getPlaylistIndexFromMouse(y);
         var playlist = musicPlayerGUI.getPlaylist();
-        if(selectedIndex>=playlist.size()){
+        if (selectedIndex >= playlist.size()) {
             return null;
         }
         return musicPlayerGUI.getPlaylist().get(selectedIndex);

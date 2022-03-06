@@ -7,19 +7,24 @@ import processing.sound.AudioSample;
 import processing.sound.BeatDetector;
 import processing.sound.SoundFile;
 
+import static com.nikpappas.music.MusicPlayerGUI.BEAT_SENSITIVITY;
+import static com.nikpappas.music.MusicPlayerGUI.X_FADE_TIME;
+
 public class MusicPlayerSample implements MusicPlayer {
     private PlaylistEntry playing;
     private final MusicPlayerGUI pApplet;
 
-    AudioSample soundA;
+    private AudioSample soundA;
     private final Amplitude amp;
     private final BeatDetector beat;
-    private float playRate;
+    private float playRate = 1f;
 
     public MusicPlayerSample(MusicPlayerGUI pApplet) {
         this.pApplet = pApplet;
         amp = new Amplitude(pApplet);
         beat = new BeatDetector(pApplet);
+        beat.sensitivity(BEAT_SENSITIVITY);
+
     }
 
     @Override
@@ -74,13 +79,23 @@ public class MusicPlayerSample implements MusicPlayer {
 
     @Override
     public void playPause() {
-
+        if (hasSong()) {
+            if (soundA.isPlaying()) {
+                soundA.pause();
+            } else {
+                soundA.play();
+            }
+        }
     }
 
     @Override
     public void stop() {
-        soundA.stop();
+        if (hasSong()) {
+            soundA.stop();
+        }
+
     }
+
 
     @Override
     public float getPosition() {
@@ -92,8 +107,8 @@ public class MusicPlayerSample implements MusicPlayer {
     }
 
     @Override
-    public void setPlayRate(float rate){
-        if(playRate == rate){
+    public void setPlayRate(float rate) {
+        if (playRate == rate || !hasSong()) {
             return;
         }
         playRate = rate;
@@ -120,12 +135,12 @@ public class MusicPlayerSample implements MusicPlayer {
 
     @Override
     public boolean isInLast(int seconds) {
-        return false;
+        return soundA.duration() - seconds < soundA.position();
     }
 
     @Override
     public float crossfadePercent() {
-        return 0;
+        return (soundA.duration() - soundA.position()) / X_FADE_TIME;
     }
 
     @Override
@@ -141,6 +156,22 @@ public class MusicPlayerSample implements MusicPlayer {
     @Override
     public boolean isBeat() {
         return beat.isBeat();
+    }
+
+    @Override
+    public float[] getBuffer() {
+        var toRet = new float[soundA.channels() * soundA.frames()];
+        soundA.read(toRet);
+        return toRet;
+    }
+
+    @Override
+    public int getFramePosition() {
+        if (hasSong()) {
+            return soundA.positionFrame();
+        } else {
+            return 0;
+        }
     }
 
 }

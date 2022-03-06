@@ -22,4 +22,11 @@ public class ResponsiveShapes {
         pApplet.square(x, y, width);
     }
 
+    public void fill(int rgb){
+        pApplet.fill(rgb);
+    }
+
+    public void stroke(int rgb) {
+        pApplet.stroke(rgb);
+    }
 }

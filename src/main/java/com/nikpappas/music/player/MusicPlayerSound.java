@@ -6,6 +6,7 @@ import processing.sound.Amplitude;
 import processing.sound.BeatDetector;
 import processing.sound.SoundFile;
 
+import static com.nikpappas.music.MusicPlayerGUI.BEAT_SENSITIVITY;
 import static com.nikpappas.music.MusicPlayerGUI.X_FADE_TIME;
 
 public class MusicPlayerSound implements MusicPlayer {
@@ -16,13 +17,13 @@ public class MusicPlayerSound implements MusicPlayer {
 
     PApplet pApplet;
     private PlaylistEntry playing;
-    private float playRate;
+    private float playRate = 1f;
 
     public MusicPlayerSound(PApplet pApplet) {
         this.pApplet = pApplet;
         this.amp = new Amplitude(pApplet);
         this.beat = new BeatDetector(pApplet);
-        beat.sensitivity(30);
+        beat.sensitivity(BEAT_SENSITIVITY);
     }
 
     @Override
@@ -97,13 +98,14 @@ public class MusicPlayerSound implements MusicPlayer {
     }
 
     @Override
-    public void setPlayRate(float rate){
-        if(playRate == rate){
+    public void setPlayRate(float rate) {
+        if (playRate == rate || !hasSong()) {
             return;
         }
         playRate = rate;
         soundA.rate(rate);
     }
+
     @Override
     public void setPosition(float percent) {
         try {
@@ -149,6 +151,22 @@ public class MusicPlayerSound implements MusicPlayer {
     @Override
     public boolean isBeat() {
         return beat.isBeat();
+    }
+
+    @Override
+    public float[] getBuffer() {
+        var toRet = new float[soundA.channels() * soundA.frames()];
+        soundA.read(toRet);
+        return toRet;
+    }
+
+    @Override
+    public int getFramePosition() {
+        if (hasSong()) {
+            return soundA.positionFrame();
+        } else {
+            return 0;
+        }
     }
 
 }

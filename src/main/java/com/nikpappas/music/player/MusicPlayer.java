@@ -34,4 +34,8 @@ public interface MusicPlayer {
     float level();
 
     boolean isBeat();
+
+    float[] getBuffer();
+
+    int getFramePosition();
 }

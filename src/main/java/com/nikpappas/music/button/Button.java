@@ -1,8 +1,8 @@
 package com.nikpappas.music.button;
 
+import com.nikpappas.music.display.Display;
 import processing.event.MouseEvent;
 
-public interface Button {
-    void listenClick(MouseEvent me);
-    void draw();
+public interface Button extends Display {
+    void listenMouseRelease(MouseEvent me);
 }

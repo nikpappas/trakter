@@ -7,6 +7,8 @@ import java.awt.*;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static java.lang.String.format;
+
 public class HSlider implements Button {
     private static final Color BG_COLOUR = new Color(100);
     private static final Color FG_COLOUR = new Color(200);
@@ -42,12 +44,17 @@ public class HSlider implements Button {
     }
 
     @Override
-    public void listenClick(MouseEvent me) {
+    public void listenMouseRelease(MouseEvent me) {
         if (limits.contains(me.getX(), me.getY())) {
-            this.value = (upperLimit - lowerLimit) * (me.getX() - x) / width + lowerLimit;
-            behaviour.accept(this.value);
+            setValue((upperLimit - lowerLimit) * (me.getX() - x) / width + lowerLimit);
         }
 
+
+    }
+
+    public void setValue(float value) {
+        this.value = value;
+        behaviour.accept(this.value);
 
     }
 
@@ -58,8 +65,7 @@ public class HSlider implements Button {
         musicPlayerGUI.fill(fgColour.orElse(FG_COLOUR).getRGB());
         var valWidth = width * ((value - lowerLimit) / (upperLimit - lowerLimit));
         musicPlayerGUI.rect(x + valWidth, y - 5, 5, height + 5);
-        musicPlayerGUI.text(value, x, y - 15);
-
+        musicPlayerGUI.text(format("%2.1f%%", (value-1f)*100), x+5, y + 15);
     }
 
     public float getValue() {

@@ -31,7 +31,7 @@ public class PrevButton implements Button {
     }
 
     @Override
-    public void listenClick(MouseEvent me) {
+    public void listenMouseRelease(MouseEvent me) {
         if (limits.contains(me.getX(), me.getY())) {
             System.out.println("play");
             behaviour.run();

@@ -1,6 +1,7 @@
 package com.nikpappas.music;
 
 import com.nikpappas.music.button.Playlist;
+import com.nikpappas.music.playlist.PlaylistStructure;
 
 import java.io.File;
 import java.util.List;
@@ -8,9 +9,9 @@ import java.util.List;
 import static com.nikpappas.music.MusicPlayerGUI.VALID_EXTENTIONS;
 
 public class FileHandler {
-    private final List<PlaylistEntry> playlist;
+    private final PlaylistStructure playlist;
 
-    public FileHandler(List<PlaylistEntry> playlist) {
+    public FileHandler(PlaylistStructure playlist) {
         this.playlist = playlist;
     }
 
