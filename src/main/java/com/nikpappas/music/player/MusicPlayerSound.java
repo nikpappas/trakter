@@ -6,7 +6,7 @@ import processing.sound.Amplitude;
 import processing.sound.BeatDetector;
 import processing.sound.SoundFile;
 
-public class MusicPlayerSound extends MusicPlayerBase {
+public class MusicPlayerSound extends MusicPlayerBase<SoundFile> {
 
 
     PApplet pApplet;

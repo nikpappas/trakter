@@ -41,7 +41,12 @@ public class PlaylistStructure {
     }
 
     public void add(int index, PlaylistEntry entry) {
-        playlist.add(index, entry);
+        try {
+            playlist.add(index, entry);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Concurrent probably " + e.getMessage());
+            System.out.println("PlaylistStructure.add");
+        }
     }
 
     public PlaylistEntry getTrack(int i) {
@@ -79,5 +84,9 @@ public class PlaylistStructure {
 
     public void setIndexFromEntry(PlaylistEntry entry) {
         this.index = playlist.indexOf(entry);
+    }
+
+    public void removeSelected() {
+        playlist.removeIf(PlaylistEntry::isSelected);
     }
 }

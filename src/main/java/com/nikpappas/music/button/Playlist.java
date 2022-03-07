@@ -81,8 +81,15 @@ public class Playlist implements Button {
                 toDisplay += "B   ";
             }
             toDisplay += file.getDisplayName();
+            toDisplay = truncate(toDisplay, PLAYLIST_TITLE_LIMIT);
             musicPlayerGUI.fill(DARK_GREY.getRGB());
-            musicPlayerGUI.text(toDisplay, x + 10, curOffset + offset);
+            musicPlayerGUI.text(toDisplay, x + 10, curOffset + offset + 5);
+            if (file.getSound() != null) {
+                musicPlayerGUI.fill(LIGHT_GREY.getRGB());
+            } else {
+                musicPlayerGUI.fill(DARK_GREY.getRGB());
+            }
+            musicPlayerGUI.circle(limits.width - 15, curOffset + offset, 10);
             if (file.isError()) {
                 musicPlayerGUI.fill(RED.getRGB());
                 musicPlayerGUI.text("ERROR", musicPlayerGUI.width - 40, curOffset + offset);
@@ -163,6 +170,7 @@ public class Playlist implements Button {
         }
         return musicPlayerGUI.getPlaylist().get(selectedIndex);
     }
+
 }
 
 class DraggedSong {

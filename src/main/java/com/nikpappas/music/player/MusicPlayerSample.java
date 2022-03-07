@@ -7,11 +7,9 @@ import processing.sound.AudioSample;
 import processing.sound.BeatDetector;
 import processing.sound.SoundFile;
 
-public class MusicPlayerSample extends MusicPlayerBase {
+public class MusicPlayerSample extends MusicPlayerBase<AudioSample> {
     private PlaylistEntry playing;
     private final MusicPlayerGUI pApplet;
-
-    private AudioSample soundA;
 
     public MusicPlayerSample(MusicPlayerGUI pApplet) {
         super(new Amplitude(pApplet), new BeatDetector(pApplet));

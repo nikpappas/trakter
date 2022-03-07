@@ -8,6 +8,8 @@ import static com.nikpappas.music.MusicPlayerGUI.*;
 import static java.lang.Math.min;
 
 public class Waveform implements Display {
+    private static final int RANGE = 320000;
+    private static final int HALF_RANGE = RANGE/2;
     private final float height;
     private final float width;
     private final int x;
@@ -45,15 +47,20 @@ public class Waveform implements Display {
         pApplet.stroke(STROKE.getRGB());
         pApplet.fill(DARK_GREY.getRGB());
         pApplet.rect(x, y, width, height);
-        var toDisplay = (float) min(220000, values.length);
+        var toDisplay = (float) min(RANGE, values.length);
         var offsetY = y + height / 2f;
         var jumpingFrames = 80;
-        var offsetX = max(position - 110000, 0);
+        var offsetX = max(position - HALF_RANGE, 0);
         var toDisplayLimit = position + toDisplay / 2f;
         pApplet.stroke(YELLOW.getRGB());
-        for (int i = offsetX; i < toDisplayLimit && i < values.length; i += jumpingFrames) {
-            var curX = x + (width * (i - position) / toDisplay + width / 2f);
-            pApplet.point(curX, 0.5f * values[i] * height + offsetY);
+        for (int i = offsetX; i < toDisplayLimit && i < (values.length); i += jumpingFrames) {
+
+            float x1 = x + (width * (i - position) / toDisplay + width / 2f);
+//            float x2 = x + (width * (i+jumpingFrames/2f - position) / toDisplay + width / 2f);
+            float y1 = .5f * values[i] * (height-5) + offsetY;
+//            float y2 =.5f * values[i+jumpingFrames/2] * (height-5) + offsetY;
+//            pApplet.line(x1,y1,x2,y2);
+            pApplet.point(x1, 0.5f * values[i] * (height-15) + offsetY);
         }
         pApplet.stroke(STROKE.getRGB());
         pApplet.line(x + width / 2, y, x + width / 2, y + height);

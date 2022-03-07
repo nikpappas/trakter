@@ -22,19 +22,15 @@ public class DragAndDropListener implements DropTargetListener {
 
     @Override
     public void dragOver(DropTargetDragEvent dtde) {
-        System.out.println("Over");
     }
 
     @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
         System.out.println("Changed");
-
     }
 
     @Override
     public void dragExit(DropTargetEvent dte) {
-        System.out.println("Exit");
-
     }
 
     @Override

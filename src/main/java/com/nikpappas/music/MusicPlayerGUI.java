@@ -28,15 +28,18 @@ import static java.lang.String.format;
 public class MusicPlayerGUI extends PApplet {
 
     public static final int BEAT_SENSITIVITY = 40;
-    public static final int TITLE_LIMIT = 60;
+    public static final int TITLE_LIMIT = 40;
+    public static final int PLAYLIST_TITLE_LIMIT = 90;
     public static final float PITCH_LIMITS = 0.2f;
+    public static final float X_FADER_WIDTH = 0.7f;
+
 
     public static final Color DARK_GREY = new Color(100, 100, 101);
     public static final Color DARKER_GREY = new Color(59, 63, 65);
     public static final Color LIGHT_GREY = new Color(200, 200, 202);
     public static final Color YELLOW = new Color(245, 228, 154);
     public static final Color STROKE = new Color(50, 50, 50);
-    public static final Color RED = new Color(200, 60, 50);
+    public static final Color RED = new Color(166, 47, 37);
     public static final Color BLUE = new Color(100, 60, 150);
     public static final Color GREEN = new Color(69, 173, 83);
     MusicPlayer playerA;
@@ -52,6 +55,7 @@ public class MusicPlayerGUI extends PApplet {
     private Waveform waveB;
     private boolean loadingA;
     private boolean loadingB;
+    private Xfade xfade;
 
     public static void main(String[] args) {
         PApplet.main(Thread.currentThread().getStackTrace()[1].getClassName());
@@ -79,9 +83,8 @@ public class MusicPlayerGUI extends PApplet {
         playerB = new MusicPlayerSample(this);
         players.put(PLAYER_A, playerA);
         players.put(PLAYER_B, playerB);
-        volumeA = new Volume(this, playerA, width / 2 - 40, height / 3 - 30);
-        volumeB = new Volume(this, playerB, width - 40, height / 3 - 30);
-        playlistComponent = new Playlist(this, 0, height / 3);
+        volumeA = new Volume(this, playerA, width / 2 - 40, height / 3 - 30, LEFT);
+        volumeB = new Volume(this, playerB, width - 40, height / 3 - 30, RIGHT);
 
         ResponsiveShapes shapes = new ResponsiveShapes(this);
         buttons.add(new PrevButton(this, 10, 30, 30, shapes,
@@ -90,13 +93,13 @@ public class MusicPlayerGUI extends PApplet {
         buttons.add(new StopButton(playerA, 90, 30, 30, shapes));
         buttons.add(new NextButton(130, 30, 30, shapes,
                 dispatchAsync(() -> playlist.getNextTrack().ifPresent(e -> loadTrackAndPlay(PLAYER_A, e)))));
-        buttons.add(playlistComponent);
         buttons.add(volumeA);
         buttons.add(new Tracker(this, playerA, 0, height / 3 - 30));
         // Reset playing rate
         HSlider rateA = new HSlider(this, 10, height / 3 - 60, width / 3, 20, 1 - PITCH_LIMITS, 1 + PITCH_LIMITS, 1, rate -> playerA.setPlayRate(rate));
         rateA.setBgColour(DARK_GREY);
         rateA.setFgColour(BLUE);
+        rateA.setDrawText(true);
         buttons.add(new SquareButton(width / 2f - 70, height / 3f - 60, SMALL_COMPONENTS, shapes, () -> rateA.setValue(1f)));
         buttons.add(rateA);
         waveA = new Waveform(this, 10, 70, width / 3f, 60);
@@ -115,11 +118,20 @@ public class MusicPlayerGUI extends PApplet {
         HSlider rateB = new HSlider(this, width / 2 + 10, height / 3 - 60, width / 3, 20, 1 - PITCH_LIMITS, 1 + PITCH_LIMITS, 1, rate -> playerB.setPlayRate(rate));
         rateB.setBgColour(DARK_GREY);
         rateB.setFgColour(BLUE);
+        rateB.setDrawText(true);
 
         buttons.add(new SquareButton(width - 70f, height / 3f - 60, SMALL_COMPONENTS, shapes, () -> rateB.setValue(1)));
         buttons.add(rateB);
         waveB = new Waveform(this, width / 2 + 10, 70, width / 3f, 60);
         displays.add(waveB);
+        xfade = new Xfade(this, (int) (width * (1 - X_FADER_WIDTH) / 2), height / 3 + 10, (int) (width * X_FADER_WIDTH), 30, x -> {
+            volumeA.update();
+            volumeB.update();
+        });
+        buttons.add(xfade);
+
+        playlistComponent = new Playlist(this, 0, height / 3 + 50);
+        buttons.add(playlistComponent);
 
         background(43);
         setUpDragAndDropListener();
@@ -131,19 +143,18 @@ public class MusicPlayerGUI extends PApplet {
         background(43);
         fill(DARKER_GREY.getRGB());
         noStroke();
-        rect(0, 0, width / 2f, height / 3f);
-        rect(width / 2f, 0, width / 2f, height / 3f);
-        fill(DARK_GREY.getRGB());
+        rect(0, 0, width / 2f, height / 3f + 60);
+        rect(width / 2f, 0, width / 2f, height / 3f + 60);
+        fill(LIGHT_GREY.getRGB());
         if (playerA.getPlaying() != null) {
             text(truncate(playerA.getPlaying().getDisplayName()), 10, 15);
-            text(String.format("%2.1f", playerA.getRemaining()), 10, 15);
         }
         if (playerB.getPlaying() != null) {
             text(truncate(playerB.getPlaying().getDisplayName()), width / 2f + 10, 15);
         }
         text(playlist.getIndex(), width - 30f, 10);
-        stroke(DARK_GREY.getRGB());
-        line(width / 2f, 0, width / 2f, height / 3f);
+        fill(DARK_GREY.getRGB());
+        rect(width / 2f-2, 0, 4, height / 3f+60);
         buttons.forEach(x -> {
             stroke(STROKE.getRGB());
             x.draw();
@@ -161,8 +172,6 @@ public class MusicPlayerGUI extends PApplet {
         waveA.setPosition(playerA.getFramePosition());
         waveB.setPosition(playerB.getFramePosition());
         displays.forEach(Display::draw);
-        text(playerA.getFrameRate() + "Hz", width / 2 - 40, 15);
-        text(playerB.getFrameRate() + "Hz", width - 40, 15);
     }
 
     private void updateCrosfade() {
@@ -174,8 +183,8 @@ public class MusicPlayerGUI extends PApplet {
                     dispatchAsync(() -> loadTrackAndPlay(PLAYER_B, trackToLoad.get())).run();
                 }
             }
-            volumeB.setVolume(1 - playerA.crossfadePercent());
-            volumeA.setVolume(playerA.crossfadePercent());
+            xfade.setValue(1 - playerA.crossfadePercent());
+            return;
         }
         if (playerB.isPlaying() && playerB.isInLast(X_FADE_TIME)) {
             if (!playerA.isPlaying() && !loadingA) {
@@ -185,17 +194,25 @@ public class MusicPlayerGUI extends PApplet {
                     dispatchAsync(() -> loadTrackAndPlay(PLAYER_A, trackToLoad.get())).run();
                 }
             }
-            volumeA.setVolume(1 - playerB.crossfadePercent());
-            volumeB.setVolume(playerB.crossfadePercent());
+            xfade.setValue(playerB.crossfadePercent());
         }
 
     }
 
-    private String truncate(String displayName) {
-        if (displayName.length() < TITLE_LIMIT) {
+    public Xfade getXfade() {
+        return xfade;
+    }
+
+    private static String truncate(String displayName) {
+        return truncate(displayName, TITLE_LIMIT);
+
+    }
+
+    public static String truncate(String displayName, int limit) {
+        if (displayName.length() < limit) {
             return displayName;
         } else {
-            return format("%s...", displayName.substring(0, TITLE_LIMIT - 3));
+            return format("%s...", displayName.substring(0, limit - 3));
         }
     }
 
@@ -212,6 +229,9 @@ public class MusicPlayerGUI extends PApplet {
     public void keyPressed(KeyEvent ke) {
         if (ke.getKeyCode() == 32) {
             playerA.playPause();
+        }
+        if(ke.getKeyCode()==BACKSPACE){
+            playlist.removeSelected();
         }
 
     }
@@ -236,6 +256,7 @@ public class MusicPlayerGUI extends PApplet {
     @Override
     public void mouseDragged(MouseEvent me) {
         playlistComponent.listenDragged(me);
+        xfade.listenDrag(me);
     }
 
     @Override
@@ -287,6 +308,14 @@ public class MusicPlayerGUI extends PApplet {
         } catch (TooManyListenersException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String secToTimeString(float seconds) {
+        var absSec = abs(seconds);
+        var min = (int) absSec / 60;
+        var sec = (int) absSec - min * 60;
+        var dec = (int) ((absSec - (int) absSec) * 10);
+        return String.format("%02d:%02d:%1d", min, sec, dec);
     }
 }
 

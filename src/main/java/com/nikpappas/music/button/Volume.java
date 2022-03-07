@@ -16,14 +16,16 @@ public class Volume implements Button {
     private final int x;
     private int height;
     private float val;
+    private int side;
 
-    public Volume(MusicPlayerGUI musicPlayerGUI, MusicPlayer player, int x, int height) {
+    public Volume(MusicPlayerGUI musicPlayerGUI, MusicPlayer player, int x, int height, int side) {
         this.musicPlayerGUI = musicPlayerGUI;
         this.player = player;
         this.x = x;
         this.height = height;
         this.val = 0.8f;
         this.limits = new Rectangle(x, 30, 30, height);
+        this.side = side;
     }
 
     @Override
@@ -51,8 +53,15 @@ public class Volume implements Button {
             return;
         }
         this.val = val;
+        if (side == LEFT) {
+            player.setVolume(val * (1 - musicPlayerGUI.getXfade().getValue()));
+        } else {
+            player.setVolume(val * musicPlayerGUI.getXfade().getValue());
+        }
 
-        player.setVolume(val);
+    }
 
+    public void update() {
+        setVolume(val);
     }
 }

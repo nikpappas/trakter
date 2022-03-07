@@ -25,7 +25,7 @@ public class PlaylistCacheThread implements Runnable {
             for (int i = 0; i < playlist.size(); i++) {
                 var entry = playlist.get(i);
                 var sound = entry.getSound();
-                if (i < (index - 1) || i > (index + 1)) {
+                if (i < (index - 1) || i > (index + 2)) {
                     if (sound != null) {
                         sound.removeFromCache();
                         entry.setSound(null);

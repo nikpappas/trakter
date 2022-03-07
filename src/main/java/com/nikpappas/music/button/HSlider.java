@@ -4,27 +4,27 @@ import com.nikpappas.music.MusicPlayerGUI;
 import processing.event.MouseEvent;
 
 import java.awt.*;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static java.lang.String.format;
 
 public class HSlider implements Button {
-    private static final Color BG_COLOUR = new Color(100);
-    private static final Color FG_COLOUR = new Color(200);
+    private static final Color BG_COLOUR = new Color(0x6E6E88);
+    private static final Color FG_COLOUR = new Color(0x29462E);
 
     private final int x;
     private final int y;
     private final Rectangle limits;
     private final Consumer<Float> behaviour;
+    private final MusicPlayerGUI musicPlayerGUI;
+    private final float lowerLimit;
+    private final float upperLimit;
     private int width;
     private int height;
-    private float lowerLimit;
-    private float upperLimit;
-    private Optional<Color> bgColour;
-    private Optional<Color> fgColour;
-    private MusicPlayerGUI musicPlayerGUI;
+    private Color bgColour;
+    private Color fgColour;
     private float value;
+    private boolean drawText;
 
     public HSlider(MusicPlayerGUI musicPlayerGUI, int x, int y, int width, int height, Consumer<Float> behaviour) {
         this(musicPlayerGUI, x, y, width, height, 0f, 1f, 0.8f, behaviour);
@@ -60,12 +60,14 @@ public class HSlider implements Button {
 
     @Override
     public void draw() {
-        musicPlayerGUI.fill(bgColour.orElse(BG_COLOUR).getRGB());
+        musicPlayerGUI.fill(getBgColourOr(BG_COLOUR).getRGB());
         musicPlayerGUI.rect(x, y, width, height);
-        musicPlayerGUI.fill(fgColour.orElse(FG_COLOUR).getRGB());
+        musicPlayerGUI.fill(getFgColourOr(FG_COLOUR).getRGB());
         var valWidth = width * ((value - lowerLimit) / (upperLimit - lowerLimit));
-        musicPlayerGUI.rect(x + valWidth, y - 5, 5, height + 5);
-        musicPlayerGUI.text(format("%2.1f%%", (value-1f)*100), x+5, y + 15);
+        musicPlayerGUI.rect(x + valWidth-2.5f, y - 5, 5, height + 5);
+        if (drawText) {
+            musicPlayerGUI.text(format("%2.1f%%", (value - 1f) * 100), x + 5, y + 15);
+        }
     }
 
     public float getValue() {
@@ -73,10 +75,21 @@ public class HSlider implements Button {
     }
 
     public void setBgColour(Color bgColour) {
-        this.bgColour = Optional.ofNullable(bgColour);
+        this.bgColour = bgColour;
     }
 
     public void setFgColour(Color fgColour) {
-        this.fgColour = Optional.ofNullable(fgColour);
+        this.fgColour = fgColour;
+    }
+    public void setDrawText(boolean drawText){
+        this.drawText = drawText;
+    }
+
+    private Color getFgColourOr(Color defaultColour) {
+        return fgColour != null ? fgColour : defaultColour;
+    }
+
+    private Color getBgColourOr(Color defaultColour) {
+        return bgColour != null ? bgColour : defaultColour;
     }
 }

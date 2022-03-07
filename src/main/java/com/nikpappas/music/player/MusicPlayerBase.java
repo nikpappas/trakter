@@ -97,7 +97,7 @@ public abstract class MusicPlayerBase<T extends AudioSample> implements MusicPla
 
     @Override
     public float crossfadePercent() {
-        return (soundA.duration() - soundA.position()) / X_FADE_TIME;
+        return hasSong() ? (soundA.duration() - soundA.position()) / X_FADE_TIME : 0f;
     }
 
     @Override
@@ -118,6 +118,7 @@ public abstract class MusicPlayerBase<T extends AudioSample> implements MusicPla
             return 0;
         }
     }
+
     @Override
     public void setPlayRate(float rate) {
         if (playRate == rate || !hasSong()) {
