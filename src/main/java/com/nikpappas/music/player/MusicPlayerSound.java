@@ -6,25 +6,15 @@ import processing.sound.Amplitude;
 import processing.sound.BeatDetector;
 import processing.sound.SoundFile;
 
-import static com.nikpappas.music.MusicPlayerGUI.BEAT_SENSITIVITY;
-import static com.nikpappas.music.MusicPlayerGUI.X_FADE_TIME;
-
-public class MusicPlayerSound implements MusicPlayer {
-    private final Amplitude amp;
-    private final BeatDetector beat;
-    SoundFile soundA;
+public class MusicPlayerSound extends MusicPlayerBase {
 
 
     PApplet pApplet;
     private PlaylistEntry playing;
-    private float playRate = 1f;
 
     public MusicPlayerSound(PApplet pApplet) {
+        super(new Amplitude(pApplet), new BeatDetector(pApplet));
         this.pApplet = pApplet;
-        this.amp = new Amplitude(pApplet);
-        this.beat = new BeatDetector(pApplet);
-        beat.sensitivity(BEAT_SENSITIVITY);
-
     }
 
     @Override
@@ -36,26 +26,14 @@ public class MusicPlayerSound implements MusicPlayer {
         System.out.println(toLoad.getDisplayName());
         try {
             if (isPlaying()) {
-                soundA.stop();
+                stop();
             }
-            soundA = new SoundFile(pApplet, toLoad.getFile(), false);
+            setSong(new SoundFile(pApplet, toLoad.getFile(), false));
 
-            amp.input(soundA);
-            beat.input(soundA);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
         }
-    }
-
-    @Override
-    public boolean hasSong() {
-        return soundA != null;
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return hasSong() && soundA.isPlaying();
     }
 
     @Override
@@ -73,72 +51,10 @@ public class MusicPlayerSound implements MusicPlayer {
         }
     }
 
-    @Override
-    public void playPause() {
-        if (hasSong()) {
-            if (soundA.isPlaying()) {
-                soundA.pause();
-            } else {
-                soundA.play();
-            }
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (hasSong()) {
-            soundA.stop();
-        }
-    }
-
-    @Override
-    public float getPosition() {
-        if (!hasSong()) {
-            return 0;
-        }
-        return soundA.percent();
-    }
-
-    @Override
-    public void setPlayRate(float rate) {
-        if (playRate == rate || !hasSong()) {
-            return;
-        }
-        playRate = rate;
-        soundA.rate(rate);
-    }
-
-    @Override
-    public void setPosition(float percent) {
-        try {
-            var posFrame = (int) (percent * soundA.frames());
-            System.out.println("frame " + posFrame);
-            soundA.jumpFrame(posFrame);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    @Override
-    public void setVolume(float vol) {
-        if (hasSong()) {
-            soundA.amp(vol);
-        }
-    }
-
     public int getFrames() {
         return soundA.frames();
     }
 
-    @Override
-    public boolean isInLast(int seconds) {
-        return soundA.duration() - seconds < soundA.position();
-    }
-
-    @Override
-    public float crossfadePercent() {
-        return (soundA.duration() - soundA.position()) / X_FADE_TIME;
-    }
 
     @Override
     public PlaylistEntry getPlaying() {
@@ -146,39 +62,10 @@ public class MusicPlayerSound implements MusicPlayer {
     }
 
     @Override
-    public float level() {
-        return amp.analyze();
-    }
-
-    @Override
-    public boolean isBeat() {
-        return beat.isBeat();
-    }
-
-    @Override
     public float[] getBuffer() {
         var toRet = new float[soundA.channels() * soundA.frames()];
         soundA.read(toRet);
         return toRet;
-    }
-
-    @Override
-    public int getFramePosition() {
-        if (hasSong()) {
-            return soundA.positionFrame();
-        } else {
-            return 0;
-        }
-    }
-
-    @Override
-    public int getFrameRate() {
-        return hasSong() ? soundA.sampleRate() : 0;
-    }
-
-    @Override
-    public float getRemaining() {
-        return hasSong() ? soundA.position() - soundA.duration() : 0;
     }
 
 }
