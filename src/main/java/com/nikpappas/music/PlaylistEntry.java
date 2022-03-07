@@ -1,5 +1,7 @@
 package com.nikpappas.music;
 
+import processing.sound.SoundFile;
+
 import java.util.Objects;
 
 public class PlaylistEntry {
@@ -9,6 +11,7 @@ public class PlaylistEntry {
     private final String file;
     private final String displayName;
     private boolean isError;
+    private SoundFile sound;
 
     public PlaylistEntry(boolean playingA, boolean playingB, boolean selected, boolean errored, String file, String displayName) {
         this.playingA = playingA;
@@ -59,10 +62,18 @@ public class PlaylistEntry {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+
     public void setError(boolean error) {
         isError = error;
     }
 
+    public SoundFile getSound() {
+        return sound;
+    }
+
+    public void setSound(SoundFile sound) {
+        this.sound = sound;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -77,6 +88,7 @@ public class PlaylistEntry {
         if (!Objects.equals(file, that.file)) return false;
         return Objects.equals(displayName, that.displayName);
     }
+
 
     @Override
     public int hashCode() {

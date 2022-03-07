@@ -1,7 +1,6 @@
 package com.nikpappas.music.player;
 
 import com.nikpappas.music.PlaylistEntry;
-import processing.sound.SoundObject;
 
 public interface MusicPlayer {
 
@@ -23,6 +22,8 @@ public interface MusicPlayer {
 
     void setPosition(float percent);
 
+    float getDuration();
+
     void setVolume(float vol);
 
     boolean isInLast(int seconds);
@@ -38,4 +39,8 @@ public interface MusicPlayer {
     float[] getBuffer();
 
     int getFramePosition();
+
+    int getFrameRate();
+
+    float getRemaining();
 }

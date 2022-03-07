@@ -10,7 +10,6 @@ public class PlaylistStructure {
     int index = -1;
 
 
-
     public void add(PlaylistEntry entry) {
         playlist.add(entry);
     }
@@ -44,6 +43,7 @@ public class PlaylistStructure {
     public void add(int index, PlaylistEntry entry) {
         playlist.add(index, entry);
     }
+
     public PlaylistEntry getTrack(int i) {
         if (i < 0 || playlist.isEmpty()) {
             return null;
@@ -51,6 +51,7 @@ public class PlaylistStructure {
         System.out.println(playlist.get(i));
         return playlist.get(i);
     }
+
     public Optional<PlaylistEntry> getNextTrack() {
         if (playlist.isEmpty()) return Optional.empty();
         index = (index + 1) % playlist.size();
@@ -70,5 +71,13 @@ public class PlaylistStructure {
 
     public int getIndex() {
         return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public void setIndexFromEntry(PlaylistEntry entry) {
+        this.index = playlist.indexOf(entry);
     }
 }

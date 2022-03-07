@@ -45,7 +45,8 @@ public class Playlist implements Button {
         }
         var selectedIndex = getPlaylistIndexFromMouse(mouseY);
         if (me.getCount() == 2) {
-            musicPlayerGUI.dispatchAsync(() -> musicPlayerGUI.loadTrack(playlist.get(selectedIndex))).run();
+            playlist.setIndex(selectedIndex);
+            musicPlayerGUI.dispatchAsync(() -> musicPlayerGUI.loadTrackAndPlay(PLAYER_A, playlist.get(selectedIndex))).run();
         } else {
             for (int i = 0; i < playlist.size(); i++) {
                 if (i == selectedIndex) {
@@ -89,7 +90,11 @@ public class Playlist implements Button {
             curOffset += TRACK_HEIGHT;
         }
         if (draggedSong != null) {
-            musicPlayerGUI.text(draggedSong.entry.getDisplayName(), draggedSong.x, draggedSong.y);
+            try {
+                musicPlayerGUI.text(draggedSong.entry.getDisplayName(), draggedSong.x, draggedSong.y);
+            } catch (NullPointerException npe) {
+                System.out.println("Should deal with null pointer in dragged song");
+            }
         }
     }
 
@@ -134,10 +139,11 @@ public class Playlist implements Button {
             } else {
                 var mPwidth = musicPlayerGUI.width;
                 var entry = draggedSong.entry;
+                musicPlayerGUI.getPlaylist().setIndexFromEntry(entry);
                 if (me.getX() < mPwidth / 2) {
-                    musicPlayerGUI.dispatchAsync(() -> musicPlayerGUI.loadTrack(PLAYER_A, entry)).run();
+                    musicPlayerGUI.dispatchAsync(() -> musicPlayerGUI.loadTrackAndPlay(PLAYER_A, entry)).run();
                 } else if (me.getX() > mPwidth / 2 && me.getX() < mPwidth) {
-                    musicPlayerGUI.dispatchAsync(() -> musicPlayerGUI.loadTrack(PLAYER_B, entry)).run();
+                    musicPlayerGUI.dispatchAsync(() -> musicPlayerGUI.loadTrackAndPlay(PLAYER_B, entry)).run();
                 }
             }
         }

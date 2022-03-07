@@ -39,9 +39,9 @@ public class MusicPlayerSample implements MusicPlayer {
                 soundA.stop();
             }
             SoundFile soundB = new SoundFile(pApplet, toLoad.getFile(), false);
-            var numOfFrames = soundB.channels() * soundB.frames();
-            soundA = new AudioSample(pApplet, numOfFrames, soundB.sampleRate() * soundB.channels());
-            float[] samples = new float[numOfFrames];
+            var numOfFrames = soundB.frames();
+            soundA = new AudioSample(pApplet, numOfFrames, true, soundB.sampleRate());
+            float[] samples = new float[2 * numOfFrames];
             soundB.read(samples);
             soundA.write(samples);
             amp.input(soundA);
@@ -127,6 +127,11 @@ public class MusicPlayerSample implements MusicPlayer {
     }
 
     @Override
+    public float getDuration() {
+        return 0;
+    }
+
+    @Override
     public void setVolume(float vol) {
         if (hasSong()) {
             soundA.amp(vol);
@@ -172,6 +177,16 @@ public class MusicPlayerSample implements MusicPlayer {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public int getFrameRate() {
+        return hasSong() ? soundA.sampleRate() : 0;
+    }
+
+    @Override
+    public float getRemaining() {
+        return hasSong() ? soundA.position() - soundA.duration() : 0;
     }
 
 }

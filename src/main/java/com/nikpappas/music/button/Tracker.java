@@ -7,6 +7,7 @@ import processing.event.MouseEvent;
 import java.awt.*;
 
 import static com.nikpappas.music.MusicPlayerGUI.*;
+import static java.lang.String.format;
 
 public class Tracker implements Button {
 
@@ -43,5 +44,7 @@ public class Tracker implements Button {
         pApplet.noStroke();
         pApplet.fill(RED.getRGB());
         pApplet.rect(limits.x, limits.y + limits.height / 4, limits.width * pos / 100, limits.height / 2);
+        pApplet.fill(DARK_GREY.getRGB());
+        pApplet.text(format("%2.1fs/%2.1fs", player.getRemaining(), player.getDuration()), limits.x + limits.width - 60f, limits.y + limits.height / 2);
     }
 }

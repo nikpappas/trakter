@@ -24,6 +24,7 @@ public class MusicPlayerSound implements MusicPlayer {
         this.amp = new Amplitude(pApplet);
         this.beat = new BeatDetector(pApplet);
         beat.sensitivity(BEAT_SENSITIVITY);
+
     }
 
     @Override
@@ -38,6 +39,7 @@ public class MusicPlayerSound implements MusicPlayer {
                 soundA.stop();
             }
             soundA = new SoundFile(pApplet, toLoad.getFile(), false);
+
             amp.input(soundA);
             beat.input(soundA);
         } catch (Exception e) {
@@ -167,6 +169,16 @@ public class MusicPlayerSound implements MusicPlayer {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public int getFrameRate() {
+        return hasSong() ? soundA.sampleRate() : 0;
+    }
+
+    @Override
+    public float getRemaining() {
+        return hasSong() ? soundA.position() - soundA.duration() : 0;
     }
 
 }
