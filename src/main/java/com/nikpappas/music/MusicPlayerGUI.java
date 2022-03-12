@@ -250,6 +250,7 @@ public class MusicPlayerGUI extends PApplet {
     @Override
     public void mousePressed(MouseEvent me) {
         playlistComponent.mousePressed(me);
+        xfade.listenPress(me);
     }
 
 

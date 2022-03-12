@@ -64,7 +64,7 @@ public class HSlider implements Button {
         musicPlayerGUI.rect(x, y, width, height);
         musicPlayerGUI.fill(getFgColourOr(FG_COLOUR).getRGB());
         var valWidth = width * ((value - lowerLimit) / (upperLimit - lowerLimit));
-        musicPlayerGUI.rect(x + valWidth-2.5f, y - 5, 5, height + 5);
+        musicPlayerGUI.rect(x + valWidth - 2.5f, y - 5, 5, height + 5);
         if (drawText) {
             musicPlayerGUI.text(format("%2.1f%%", (value - 1f) * 100), x + 5, y + 15);
         }
@@ -81,7 +81,8 @@ public class HSlider implements Button {
     public void setFgColour(Color fgColour) {
         this.fgColour = fgColour;
     }
-    public void setDrawText(boolean drawText){
+
+    public void setDrawText(boolean drawText) {
         this.drawText = drawText;
     }
 
@@ -91,5 +92,9 @@ public class HSlider implements Button {
 
     private Color getBgColourOr(Color defaultColour) {
         return bgColour != null ? bgColour : defaultColour;
+    }
+
+    public boolean contains(int x, int y) {
+        return limits.contains(x, y);
     }
 }

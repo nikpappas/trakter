@@ -10,6 +10,7 @@ import static com.nikpappas.music.MusicPlayerGUI.RED;
 
 public class Xfade implements Button {
     HSlider hSlider;
+    private boolean active;
 
     public Xfade(MusicPlayerGUI musicPlayerGUI, int x, int y, int width, int height, Consumer<Float> behaviour) {
         this.hSlider = new HSlider(musicPlayerGUI, x, y, width, height, 0, 1, 0.5f, behaviour);
@@ -19,11 +20,21 @@ public class Xfade implements Button {
 
     @Override
     public void listenMouseRelease(MouseEvent me) {
+
         hSlider.listenMouseRelease(me);
+        active = false;
     }
 
     public void listenDrag(MouseEvent me) {
-        hSlider.listenMouseRelease(me);
+        if (active) {
+            hSlider.listenMouseRelease(me);
+        }
+    }
+
+    public void listenPress(MouseEvent me) {
+        if (hSlider.contains(me.getX(), me.getY())) {
+            active = true;
+        }
     }
 
     @Override

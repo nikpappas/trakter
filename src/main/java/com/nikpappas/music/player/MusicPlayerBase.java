@@ -135,6 +135,7 @@ public abstract class MusicPlayerBase<T extends AudioSample> implements MusicPla
 
     @Override
     public boolean isBeat() {
+
         return beat.isBeat();
     }
 
