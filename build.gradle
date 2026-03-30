@@ -10,16 +10,14 @@ repositories {
 }
 
 
+
 dependencies {
     implementation(
-            files('/Users/nikos/libs/org/processing/processing-core/v4/core.jar'),
-            files('/Users/nikos/libs/org/processing/processing-sound/soundv3.jar'),
-            files('/Users/nikos/libs/org/processing/processing-sound/jsyn-20171016.jar'),
-            files('/Users/nikos/libs/org/processing/processing-sound/javamp3-1.0.4.jar'),
-            files('/Users/nikos/libs/com/jogl/jogl-all-natives-macosx-universal.jar'),
-            files('/Users/nikos/libs/com/jogl/jogl-all.jar'),
-            files('/Users/nikos/libs/com/jogl/gluegen-rt-natives-macosx-universal.jar'),
-            files('/Users/nikos/libs/com/jogl/gluegen-rt.jar'),
+            files('./libs/org/processing/processing-core/v4/core.jar'),
+            files('./libs/org/processing/processing-sound/v2.4.0/sound.jar'),
+            files('./libs/org/processing/processing-sound/v2.4.0/mp3spi-1.9.5.4.jar'),
+            files('./libs/com/softsynth/jsyn/jsyn-20171016.jar'),
+
             'com.nikpappas.utils:utils:1.0.1',
     )
 
